@@ -1,15 +1,24 @@
+// MODAL ================================
 const Modal = {
-    open() {
+    toggle() {
         document.querySelector('.modal-overlay')
         .classList
-        .add('active')
+        .toggle('active')
     },
-    close() {
-        document.querySelector('.modal-overlay')
-        .classList
-        .remove('active')
-    }
 }
+
+const newTransaction = document.getElementById('newTransaction')
+const closeTransaction = document.getElementById('closeTransaction')
+
+newTransaction.addEventListener('click', function() {
+    Modal.toggle()
+})
+
+closeTransaction.addEventListener('click', function() {
+    Modal.toggle()
+})
+
+// TRANSACTIONS ================================
 
 const transactions = [
     {
@@ -33,14 +42,35 @@ const transactions = [
 ]
 
 const Transaction = {
+    all: transactions,
+
+    add(transaction) {
+        Transaction.all.push(transaction)
+        App.reload()
+    },
+
     incomes() {
-        // somar as entradas
+        let income = 0;
+        Transaction.all.forEach(transaction => {
+            if(transaction.amount > 0) {
+                income += transaction.amount;
+            }
+        })
+        return income;
     },
+
     expenses() {
-        // somar as saídas
+        let expense = 0;
+        Transaction.all.forEach(transaction => {
+            if(transaction.amount < 0) {
+                expense += transaction.amount;
+            }
+        })
+        return expense;
     },
+
     total() {
-        // entradas - saídas
+        return Transaction.incomes() + Transaction.expenses();
     }
 }
 
@@ -74,7 +104,20 @@ const DOM = {
     },
 
     updateBalance() {
+        document
+            .getElementById('incomeDisplay')
+            .innerHTML = Utils.formatCurrency(Transaction.incomes())
+        document
+            .getElementById('expenseDisplay')
+            .innerHTML = Utils.formatCurrency(Transaction.expenses())
+        document
+            .getElementById('totalDisplay')
+            .innerHTML = Utils.formatCurrency(Transaction.total())
         
+    },
+
+    clearTransactions() {
+        DOM.transactionsContainer.innerHTML = ""
     }
 }
 
@@ -95,6 +138,26 @@ const Utils = {
     }
 }
 
-transactions.forEach(function(transaction) {
-    DOM.addTransaction(transaction)
+const App = {
+    init() {
+        Transaction.all.forEach(transaction => {
+            DOM.addTransaction(transaction)
+        })
+        
+        DOM.updateBalance()
+    
+    },
+    reload() {
+        DOM.clearTransactions()
+        App.init()
+    },
+}
+
+App.init()
+
+Transaction.add({
+    id: 39,
+    description: 'Alo',
+    amount: 200,
+    date: "23/01/2021"
 })
