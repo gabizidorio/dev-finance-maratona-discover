@@ -20,32 +20,33 @@ closeTransaction.addEventListener('click', function() {
 
 // TRANSACTIONS ================================
 
-const transactions = [
-    {
-        id: 1,
-        description: 'Luz',
-        amount: -50000,
-        date: '23/01/2021'
-    },
-    {
-        id: 2,
-        description: 'Website',
-        amount: 500000,
-        date: '23/01/2021'
-    },
-    {
-        id: 3,
-        description: 'Internet',
-        amount: -20000,
-        date: '23/01/2021'
-    },
-]
-
 const Transaction = {
-    all: transactions,
+    all: [
+        {
+            description: 'Luz',
+            amount: -50000,
+            date: '23/01/2021'
+        },
+        {
+            description: 'Website',
+            amount: 500000,
+            date: '23/01/2021'
+        },
+        {
+            description: 'Internet',
+            amount: -20000,
+            date: '23/01/2021'
+        },
+    ],
 
     add(transaction) {
         Transaction.all.push(transaction)
+        App.reload()
+    },
+
+    remove(index) {
+        Transaction.all.splice(index, 1)
+
         App.reload()
     },
 
@@ -122,6 +123,17 @@ const DOM = {
 }
 
 const Utils = {
+    formatAmount(value) {
+        value = Number(value) * 100
+
+        return value
+    },
+
+    formatDate(date) {
+        const splittedDate = date.split("-")
+        return `${splittedDate[2]}/${splittedDate[1]}/${splittedDate[0]}`
+    },
+
     formatCurrency(value) {
         const signal = Number(value) < 0 ? "-" : ""
 
@@ -135,6 +147,70 @@ const Utils = {
         })
 
         return signal + value
+    }
+}
+
+const Form = {
+    description: document.querySelector('input#description'),
+    amount: document.querySelector('input#amount'),
+    date: document.querySelector('input#date'),
+
+    getValues() {
+        return {
+            description: Form.description.value,
+            amount: Form.amount.value,
+            date: Form.date.value
+        }
+    },
+
+    validateFields() {
+        const { description, amount, date } = Form.getValues()
+        if(
+            description.trim() === "" ||
+            amount.trim() === "" ||
+            date.trim() === "" ) {
+                throw new Error("Por favor, preencha todos os campos")
+
+        }
+    },
+
+    formatValues() {
+        let { description, amount, date } = Form.getValues()
+
+        amount = Utils.formatAmount(amount)
+
+        date = Utils.formatDate(date)
+
+        return {
+            description,
+            amount,
+            date
+        }
+    },
+
+    saveTransaction(transaction) {
+
+    },
+
+    submit(event) {
+        event.preventDefault()
+
+        try {
+            Form.validateFields()
+
+            const transaction = Form.formatValues()
+
+            Transaction.add(transaction)
+
+            Form.saveTransaction(transaction)
+
+            
+        } catch (error) {
+            alert(error.message)
+        }
+
+
+        //Form.formatData()
     }
 }
 
@@ -155,9 +231,4 @@ const App = {
 
 App.init()
 
-Transaction.add({
-    id: 39,
-    description: 'Alo',
-    amount: 200,
-    date: "23/01/2021"
-})
+
